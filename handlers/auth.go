@@ -3,7 +3,7 @@ package handlers
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"life/config"
+	"life/auth"
 	"life/models"
 	"net/http"
 	"time"
@@ -55,7 +55,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// Gera access token
-	accessToken, err := config.GenerateToken(user.ID)
+	accessToken, err := auth.GenerateToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao gerar token"})
 		return
@@ -107,7 +107,7 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 	}
 
 	// Gera novo access token
-	accessToken, err := config.GenerateToken(rt.UserID)
+	accessToken, err := auth.GenerateToken(rt.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao gerar token"})
 		return

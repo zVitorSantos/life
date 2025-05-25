@@ -23,6 +23,16 @@ func InitLogger() {
 	})
 }
 
+// Fatal registra um erro fatal e encerra a aplicação
+func Fatal(message string) {
+	log.Fatal().Msg(message)
+}
+
+// Error registra um erro
+func Error(message string) {
+	log.Error().Msg(message)
+}
+
 func LogRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()

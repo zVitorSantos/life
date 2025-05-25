@@ -11,6 +11,28 @@ import (
 	"gorm.io/gorm"
 )
 
+// Router gerencia as rotas da aplicação
+type Router struct {
+	Engine *gin.Engine
+	db     *gorm.DB
+	user   *handlers.UserHandler
+	auth   *handlers.AuthHandler
+	apiKey *handlers.APIKeyHandler
+	health *handlers.HealthHandler
+}
+
+// NewRouter cria uma nova instância do Router
+func NewRouter(db *gorm.DB, user *handlers.UserHandler, auth *handlers.AuthHandler, apiKey *handlers.APIKeyHandler, health *handlers.HealthHandler) *Router {
+	return &Router{
+		Engine: gin.Default(),
+		db:     db,
+		user:   user,
+		auth:   auth,
+		apiKey: apiKey,
+		health: health,
+	}
+}
+
 // SetupRouter configura todas as rotas da aplicação
 func SetupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()

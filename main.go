@@ -1,14 +1,9 @@
 package main
 
 import (
-	"log"
-	"os"
-
 	"life/config"
 	"life/logger"
-	"life/routes"
-
-	_ "life/docs"
+	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -52,27 +47,24 @@ import (
 // @tag.description Gerenciamento de chaves de API
 
 func main() {
+	// Carrega variáveis de ambiente
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
+		logger.Fatal("Erro ao carregar .env")
 	}
 
-	// Inicializa o logger
-	logger.InitLogger()
-
-	db, err := config.InitDB()
+	// Inicializa o container
+	container, err := config.NewContainer()
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		logger.Fatal("Erro ao inicializar container: " + err.Error())
 	}
 
-	// Configura o router
-	r := routes.SetupRouter(db)
-
+	// Inicia o servidor
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	if err := r.Run(":" + port); err != nil {
-		log.Fatal("Failed to start server:", err)
+	if err := container.Router.Engine.Run(":" + port); err != nil {
+		logger.Fatal("Erro ao iniciar servidor: " + err.Error())
 	}
 }
