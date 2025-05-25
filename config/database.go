@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// InitDB inicializa a conexão com o banco de dados
 func InitDB() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -24,8 +25,8 @@ func InitDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Auto Migrate
-	err = db.AutoMigrate(&models.User{}, &models.APIKey{})
+	// Migra as tabelas
+	err = db.AutoMigrate(&models.User{}, &models.APIKey{}, &models.RefreshToken{})
 	if err != nil {
 		return nil, err
 	}

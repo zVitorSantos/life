@@ -18,6 +18,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Inicializa handlers
 	userHandler := handlers.NewUserHandler(db)
 	apiKeyHandler := handlers.NewAPIKeyHandler(db)
+	authHandler := handlers.NewAuthHandler(db)
+	healthHandler := handlers.NewHealthHandler(db)
 
 	// Middleware global
 	r.Use(gin.Recovery())
@@ -26,10 +28,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Documentação Swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	// Health checks
+	setupHealthRoutes(r, healthHandler)
+
 	// Rotas públicas
 	public := r.Group("/api")
 	{
-		setupPublicRoutes(public, userHandler)
+		setupPublicRoutes(public, userHandler, authHandler)
 	}
 
 	// Rotas protegidas por JWT
@@ -49,8 +54,37 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	return r
 }
 
+// setupHealthRoutes configura as rotas de health check
+func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler) {
+	// @Summary Health check
+	// @Description Verifica a saúde da aplicação
+	// @Tags health
+	// @Produce json
+	// @Success 200 {object} handlers.HealthResponse
+	// @Failure 503 {object} handlers.HealthResponse
+	// @Router /health [get]
+	router.GET("/health", healthHandler.HealthCheck)
+
+	// @Summary Readiness check
+	// @Description Verifica se a aplicação está pronta para receber tráfego
+	// @Tags health
+	// @Produce json
+	// @Success 200 {object} handlers.HealthResponse
+	// @Failure 503 {object} handlers.HealthResponse
+	// @Router /ready [get]
+	router.GET("/ready", healthHandler.ReadinessCheck)
+
+	// @Summary Liveness check
+	// @Description Verifica se a aplicação está viva
+	// @Tags health
+	// @Produce json
+	// @Success 200 {object} handlers.HealthResponse
+	// @Router /live [get]
+	router.GET("/live", healthHandler.LivenessCheck)
+}
+
 // setupPublicRoutes configura as rotas públicas
-func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler) {
+func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) {
 	// @Summary Registra um novo usuário
 	// @Description Cria uma nova conta de usuário
 	// @Tags auth
@@ -64,16 +98,40 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 	router.POST("/register", userHandler.Register)
 
 	// @Summary Realiza login
-	// @Description Autentica um usuário e retorna um token JWT
+	// @Description Autentica um usuário e retorna tokens
 	// @Tags auth
 	// @Accept json
 	// @Produce json
 	// @Param credentials body map[string]string true "Credenciais de login"
-	// @Success 200 {object} map[string]string "JWT token"
+	// @Success 200 {object} handlers.LoginResponse
 	// @Failure 400 {object} map[string]string
 	// @Failure 401 {object} map[string]string
 	// @Router /login [post]
-	router.POST("/login", userHandler.Login)
+	router.POST("/login", authHandler.Login)
+
+	// @Summary Atualiza access token
+	// @Description Atualiza o access token usando o refresh token
+	// @Tags auth
+	// @Accept json
+	// @Produce json
+	// @Param refresh body map[string]string true "Refresh token"
+	// @Success 200 {object} handlers.LoginResponse
+	// @Failure 400 {object} map[string]string
+	// @Failure 401 {object} map[string]string
+	// @Router /refresh [post]
+	router.POST("/refresh", authHandler.Refresh)
+
+	// @Summary Realiza logout
+	// @Description Revoga um refresh token
+	// @Tags auth
+	// @Accept json
+	// @Produce json
+	// @Param refresh body map[string]string true "Refresh token"
+	// @Success 204 "No Content"
+	// @Failure 400 {object} map[string]string
+	// @Failure 404 {object} map[string]string
+	// @Router /logout [post]
+	router.POST("/logout", authHandler.Logout)
 }
 
 // setupProtectedRoutes configura as rotas protegidas por JWT
