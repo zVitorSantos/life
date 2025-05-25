@@ -11,12 +11,17 @@ API RESTful para o jogo Life, desenvolvida em Go com Docker.
 ## Configuração
 
 1. Clone o repositório
-2. Copie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente
-3. Execute o projeto com Docker Compose:
-
-```bash
-docker-compose up --build
-```
+2. Copie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente:
+   ```bash
+   cp .env.example .env
+   ```
+3. Edite o arquivo `.env` com suas configurações:
+   - `DB_PASSWORD`: Senha do banco de dados
+   - `JWT_SECRET`: Chave secreta para JWT (use uma string aleatória segura)
+4. Execute o projeto com Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
 
 ## Documentação
 
@@ -27,8 +32,7 @@ http://localhost:8080/swagger/index.html
 
 Para gerar a documentação Swagger:
 ```bash
-chmod +x scripts/generate_swagger.sh
-./scripts/generate_swagger.sh
+swag init -g main.go -o docs
 ```
 
 ## Testes
@@ -72,7 +76,8 @@ O sistema utiliza logging estruturado com zerolog. Os logs incluem:
 ├── models/        # Modelos de dados
 ├── scripts/       # Scripts utilitários
 ├── tests/         # Testes unitários e de integração
-├── .env           # Variáveis de ambiente
+├── .env           # Variáveis de ambiente (não versionado)
+├── .env.example   # Exemplo de variáveis de ambiente
 ├── docker-compose.yml
 ├── Dockerfile
 └── main.go        # Arquivo principal
@@ -87,6 +92,12 @@ O sistema utiliza logging estruturado com zerolog. Os logs incluem:
 - Headers de segurança
 - Logging estruturado
 - Documentação Swagger
+
+## Arquivos Sensíveis
+
+Os seguintes arquivos NÃO devem ser versionados:
+- `.env` (contém senhas e tokens)
+- `postgres_data/` (dados do banco)
 
 ## Próximos Passos
 

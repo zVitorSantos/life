@@ -9,12 +9,43 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {},
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "tags": [
+        {
+            "description": "Operações de autenticação",
+            "name": "auth"
+        },
+        {
+            "description": "Operações de usuário",
+            "name": "users"
+        },
+        {
+            "description": "Operações de perfil",
+            "name": "profile"
+        }
+    ]
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
@@ -22,7 +53,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
-	Schemes:          []string{},
+	Schemes:          []string{"http"},
 	Title:            "Life Game API",
 	Description:      "API RESTful para o jogo Life",
 	InfoInstanceName: "swagger",

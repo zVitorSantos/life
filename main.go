@@ -20,8 +20,32 @@ import (
 // @title Life Game API
 // @version 1.0
 // @description API RESTful para o jogo Life
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
 // @host localhost:8080
 // @BasePath /api
+// @schemes http
+
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
+// @tag.name auth
+// @tag.description Operações de autenticação
+
+// @tag.name users
+// @tag.description Operações de usuário
+
+// @tag.name profile
+// @tag.description Operações de perfil
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
@@ -55,7 +79,10 @@ func main() {
 		// @Tags auth
 		// @Accept json
 		// @Produce json
+		// @Param user body models.User true "Dados do usuário"
 		// @Success 201 {object} models.User
+		// @Failure 400 {object} map[string]string
+		// @Failure 409 {object} map[string]string
 		// @Router /register [post]
 		public.POST("/register", userHandler.Register)
 
@@ -64,7 +91,10 @@ func main() {
 		// @Tags auth
 		// @Accept json
 		// @Produce json
-		// @Success 200 {string} string "JWT token"
+		// @Param credentials body map[string]string true "Credenciais de login"
+		// @Success 200 {object} map[string]string "JWT token"
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
 		// @Router /login [post]
 		public.POST("/login", userHandler.Login)
 	}
@@ -79,6 +109,8 @@ func main() {
 		// @Security Bearer
 		// @Produce json
 		// @Success 200 {object} models.User
+		// @Failure 401 {object} map[string]string
+		// @Failure 404 {object} map[string]string
 		// @Router /profile [get]
 		protected.GET("/profile", userHandler.GetProfile)
 
@@ -88,7 +120,11 @@ func main() {
 		// @Security Bearer
 		// @Accept json
 		// @Produce json
+		// @Param user body models.User true "Dados do usuário"
 		// @Success 200 {object} models.User
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Failure 404 {object} map[string]string
 		// @Router /profile [put]
 		protected.PUT("/profile", userHandler.UpdateProfile)
 	}
