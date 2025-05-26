@@ -41,6 +41,34 @@ definitions:
         description: ID do usuário dono da chave
         type: integer
     type: object
+  models.User:
+    description: Informações do usuário
+    properties:
+      created_at:
+        description: Data de criação
+        example: "2024-05-25T20:00:00Z"
+        type: string
+      display_name:
+        description: Nome de exibição
+        example: John Doe
+        type: string
+      email:
+        description: Email do usuário
+        example: john@example.com
+        type: string
+      id:
+        description: ID único do usuário
+        example: 1
+        type: integer
+      updated_at:
+        description: Data da última atualização
+        example: "2024-05-25T20:00:00Z"
+        type: string
+      username:
+        description: Nome de usuário único
+        example: johndoe
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -180,6 +208,108 @@ paths:
       summary: Atualiza chave de API
       tags:
       - api-keys
+  /profile:
+    get:
+      description: Retorna os dados do perfil do usuário autenticado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Obtém perfil do usuário
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: Atualiza os dados do perfil do usuário autenticado
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Atualiza perfil do usuário
+      tags:
+      - profile
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova conta de usuário
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Registra um novo usuário
+      tags:
+      - users
 schemes:
 - http
 securityDefinitions:
