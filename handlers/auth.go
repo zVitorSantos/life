@@ -24,11 +24,19 @@ func NewAuthHandler(db *gorm.DB) *AuthHandler {
 }
 
 // LoginResponse representa a resposta do login
+// @Description Resposta de autenticação contendo os tokens
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	TokenType    string `json:"token_type"`
-	ExpiresIn    int64  `json:"expires_in"`
+	// Token de acesso JWT
+	AccessToken string `json:"access_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+
+	// Token de atualização
+	RefreshToken string `json:"refresh_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+
+	// Tipo do token (sempre "Bearer")
+	TokenType string `json:"token_type" example:"Bearer"`
+
+	// Tempo de expiração em segundos
+	ExpiresIn int64 `json:"expires_in" example:"3600"`
 }
 
 // Login autentica um usuário e retorna tokens
