@@ -136,8 +136,3 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	user.Password = ""
 	c.JSON(http.StatusOK, user)
 }
-
-func (h *UserHandler) Login(c *gin.Context) {
-	// TODO: Implementar login
-	c.JSON(http.StatusNotImplemented, gin.H{"error": "Not implemented"})
-}

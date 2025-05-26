@@ -1,5 +1,25 @@
 basePath: /api
 definitions:
+  handlers.LoginResponse:
+    description: Resposta de autenticação contendo os tokens
+    properties:
+      access_token:
+        description: Token de acesso JWT
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      expires_in:
+        description: Tempo de expiração em segundos
+        example: 3600
+        type: integer
+      refresh_token:
+        description: Token de atualização
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      token_type:
+        description: Tipo do token (sempre "Bearer")
+        example: Bearer
+        type: string
+    type: object
   models.APIKey:
     description: Informações da chave de API
     properties:
@@ -208,6 +228,76 @@ paths:
       summary: Atualiza chave de API
       tags:
       - api-keys
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica um usuário e retorna tokens
+      parameters:
+      - description: Credenciais de login
+        in: body
+        name: credentials
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Realiza login
+      tags:
+      - auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Revoga um refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Realiza logout
+      tags:
+      - auth
   /profile:
     get:
       description: Retorna os dados do perfil do usuário autenticado
@@ -276,6 +366,42 @@ paths:
       summary: Atualiza perfil do usuário
       tags:
       - profile
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Atualiza o access token usando o refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Atualiza access token
+      tags:
+      - auth
   /register:
     post:
       consumes:

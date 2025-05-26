@@ -40,6 +40,16 @@ type LoginResponse struct {
 }
 
 // Login autentica um usuário e retorna tokens
+// @Summary Realiza login
+// @Description Autentica um usuário e retorna tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param credentials body map[string]string true "Credenciais de login"
+// @Success 200 {object} handlers.LoginResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var loginData struct {
 		Username string `json:"username" binding:"required"`
@@ -97,6 +107,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 // Refresh atualiza o access token usando o refresh token
+// @Summary Atualiza access token
+// @Description Atualiza o access token usando o refresh token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param refresh body map[string]string true "Refresh token"
+// @Success 200 {object} handlers.LoginResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /refresh [post]
 func (h *AuthHandler) Refresh(c *gin.Context) {
 	var refreshData struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
@@ -129,6 +149,16 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 }
 
 // Logout revoga um refresh token
+// @Summary Realiza logout
+// @Description Revoga um refresh token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param refresh body map[string]string true "Refresh token"
+// @Success 204 "No Content"
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	var logoutData struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
