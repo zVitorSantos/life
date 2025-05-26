@@ -33,14 +33,22 @@ jobs:
       with:
         go-version: '1.21'
 
+    - name: Install dependencies
+      run: go mod download
+
     - name: Build API
-      run: |
-        cd ..
-        go build -o api
+      run: go build -o api
 
     - name: Start API
+      env:
+        DB_HOST: localhost
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: life_test
+        DB_PORT: 5432
+        JWT_SECRET: test_secret
+        JWT_REFRESH_SECRET: test_refresh_secret
       run: |
-        cd ..
         ./api &
         sleep 5
 
@@ -48,12 +56,11 @@ jobs:
       env:
         API_URL: http://localhost:8080/api/v1
       run: |
-        cd tests
-        go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+        go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        file: ./tests/coverage.txt
+        file: ./coverage.txt
         fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }} 
