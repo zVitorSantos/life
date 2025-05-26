@@ -108,9 +108,8 @@ func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler
 // setupPublicRoutes configura as rotas públicas
 func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) {
 	// Middleware para rotas de autenticação
-	auth := router.Group("")
-	auth.Use(middleware.MethodNotAllowed())
-	auth.Use(middleware.RequestValidation())
+	router.Use(middleware.MethodNotAllowed())
+	router.Use(middleware.RequestValidation())
 	{
 		// @Summary Registra um novo usuário
 		// @Description Cria uma nova conta de usuário
@@ -122,7 +121,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 409 {object} map[string]string
 		// @Router /register [post]
-		auth.POST("/register", userHandler.Register)
+		router.POST("/register", userHandler.Register)
 
 		// @Summary Realiza login
 		// @Description Autentica um usuário e retorna tokens
@@ -134,7 +133,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 401 {object} map[string]string
 		// @Router /login [post]
-		auth.POST("/login", authHandler.Login)
+		router.POST("/login", authHandler.Login)
 
 		// @Summary Atualiza access token
 		// @Description Atualiza o access token usando o refresh token
@@ -146,7 +145,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 401 {object} map[string]string
 		// @Router /refresh [post]
-		auth.POST("/refresh", authHandler.Refresh)
+		router.POST("/refresh", authHandler.Refresh)
 
 		// @Summary Realiza logout
 		// @Description Revoga um refresh token
@@ -158,7 +157,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 404 {object} map[string]string
 		// @Router /logout [post]
-		auth.POST("/logout", authHandler.Logout)
+		router.POST("/logout", authHandler.Logout)
 	}
 }
 
