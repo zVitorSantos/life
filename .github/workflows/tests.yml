@@ -51,7 +51,19 @@ jobs:
         GIN_MODE: test
       run: |
         ./api &
-        sleep 5
+        # Aguarda a API iniciar
+        for i in {1..30}; do
+          if curl -s http://localhost:8080/api/v1/health > /dev/null; then
+            echo "API está rodando!"
+            break
+          fi
+          if [ $i -eq 30 ]; then
+            echo "API não iniciou após 30 tentativas"
+            exit 1
+          fi
+          echo "Aguardando API iniciar... ($i/30)"
+          sleep 1
+        done
 
     - name: Run tests
       env:
