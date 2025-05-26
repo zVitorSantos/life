@@ -2,7 +2,7 @@ package main
 
 import (
 	"life/config"
-	_ "life/docs" // Importa a documentação Swagger
+	_ "life/docs"
 	"life/logger"
 	"life/routes"
 	"os"
@@ -49,9 +49,11 @@ import (
 // @tag.description Gerenciamento de chaves de API
 
 func main() {
-	// Carrega variáveis de ambiente
+	// Carrega variáveis de ambiente do arquivo .env se existir
 	if err := godotenv.Load(); err != nil {
-		logger.Fatal("Erro ao carregar .env")
+		// Se o arquivo .env não existir, não é um erro fatal
+		// As variáveis de ambiente já devem estar configuradas no sistema
+		logger.Info("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
 	}
 
 	// Inicializa o container
