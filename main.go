@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"life/config"
 	_ "life/docs"
 	"life/logger"
 	"life/routes"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -48,12 +50,41 @@ import (
 // @tag.name api-keys
 // @tag.description Gerenciamento de chaves de API
 
+// requiredEnvVars lista todas as variáveis de ambiente necessárias
+var requiredEnvVars = []string{
+	"DB_HOST",
+	"DB_PORT",
+	"DB_USER",
+	"DB_PASSWORD",
+	"DB_NAME",
+	"JWT_SECRET",
+}
+
+func validateEnvVars() error {
+	var missing []string
+
+	for _, envVar := range requiredEnvVars {
+		if os.Getenv(envVar) == "" {
+			missing = append(missing, envVar)
+		}
+	}
+
+	if len(missing) > 0 {
+		return fmt.Errorf("variáveis de ambiente obrigatórias não encontradas: %s", strings.Join(missing, ", "))
+	}
+
+	return nil
+}
+
 func main() {
 	// Carrega variáveis de ambiente do arquivo .env se existir
 	if err := godotenv.Load(); err != nil {
-		// Se o arquivo .env não existir, não é um erro fatal
-		// As variáveis de ambiente já devem estar configuradas no sistema
 		logger.Info("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
+	}
+
+	// Valida se todas as variáveis necessárias estão presentes
+	if err := validateEnvVars(); err != nil {
+		logger.Fatal("Erro ao validar variáveis de ambiente: " + err.Error())
 	}
 
 	// Inicializa o container
