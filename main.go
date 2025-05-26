@@ -3,12 +3,10 @@ package main
 import (
 	"life/config"
 	"life/logger"
-	"life/middleware"
+	"life/routes"
 	"os"
 
 	"github.com/joho/godotenv"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // @title Life Game API
@@ -61,35 +59,8 @@ func main() {
 		logger.Fatal("Erro ao inicializar container: " + err.Error())
 	}
 
-	// Configura as rotas
-	router := container.Router
-	router.Engine.Use(logger.LogRequest())
-
-	// Documentação Swagger
-	router.Engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// Health checks
-	setupHealthRoutes(router.Engine, router.health)
-
-	// Rotas públicas
-	public := router.Engine.Group("/api")
-	{
-		setupPublicRoutes(public, router.user, router.auth)
-	}
-
-	// Rotas protegidas por JWT
-	protected := router.Engine.Group("/api")
-	protected.Use(middleware.AuthMiddleware())
-	{
-		setupProtectedRoutes(protected, router.user, router.apiKey)
-	}
-
-	// Rotas protegidas por API Key
-	apiProtected := router.Engine.Group("/api")
-	apiProtected.Use(middleware.APIKeyAuth(router.db))
-	{
-		setupAPIProtectedRoutes(apiProtected)
-	}
+	// Configura o router
+	r := routes.SetupRouter(container.DB)
 
 	// Inicia o servidor
 	port := os.Getenv("PORT")
@@ -97,7 +68,7 @@ func main() {
 		port = "8080"
 	}
 
-	if err := router.Engine.Run(":" + port); err != nil {
+	if err := r.Run(":" + port); err != nil {
 		logger.Fatal("Erro ao iniciar servidor: " + err.Error())
 	}
 }

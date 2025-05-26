@@ -1,4 +1,46 @@
 basePath: /api
+definitions:
+  models.APIKey:
+    description: Informações da chave de API
+    properties:
+      created_at:
+        description: Data de criação
+        example: "2024-05-25T20:00:00Z"
+        type: string
+      expires_at:
+        description: Data de expiração
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      id:
+        description: ID único da chave
+        example: 1
+        type: integer
+      is_active:
+        description: Status da chave (ativo/inativo)
+        type: boolean
+      key:
+        description: Chave de API (hash)
+        type: string
+      last_used_at:
+        description: Último uso da chave
+        example: "2024-05-25T20:00:00Z"
+        type: string
+      name:
+        description: Nome da chave para identificação
+        example: Frontend App
+        type: string
+      rate_limit:
+        description: Limite de requisições por minuto
+        example: 60
+        type: integer
+      updated_at:
+        description: Data da última atualização
+        example: "2024-05-25T20:00:00Z"
+        type: string
+      user_id:
+        description: ID do usuário dono da chave
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -12,10 +54,140 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Life Game API
   version: "1.0"
-paths: {}
+paths:
+  /api-keys:
+    get:
+      description: Retorna todas as chaves de API do usuário autenticado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.APIKey'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Lista chaves de API
+      tags:
+      - api-keys
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova chave de API para o usuário autenticado
+      parameters:
+      - description: Dados da chave de API
+        in: body
+        name: apiKey
+        required: true
+        schema:
+          $ref: '#/definitions/models.APIKey'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.APIKey'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cria uma nova chave de API
+      tags:
+      - api-keys
+  /api-keys/{id}:
+    delete:
+      description: Remove uma chave de API específica
+      parameters:
+      - description: ID da chave de API
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Remove chave de API
+      tags:
+      - api-keys
+    put:
+      consumes:
+      - application/json
+      description: Atualiza os dados de uma chave de API específica
+      parameters:
+      - description: ID da chave de API
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados da chave de API
+        in: body
+        name: apiKey
+        required: true
+        schema:
+          $ref: '#/definitions/models.APIKey'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIKey'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Atualiza chave de API
+      tags:
+      - api-keys
 schemes:
 - http
 securityDefinitions:
+  ApiKeyAuth:
+    description: API Key for authentication
+    in: header
+    name: X-API-Key
+    type: apiKey
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.
     in: header
@@ -29,3 +201,5 @@ tags:
   name: users
 - description: Operações de perfil
   name: profile
+- description: Gerenciamento de chaves de API
+  name: api-keys

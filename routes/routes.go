@@ -107,53 +107,59 @@ func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler
 
 // setupPublicRoutes configura as rotas públicas
 func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) {
-	// @Summary Registra um novo usuário
-	// @Description Cria uma nova conta de usuário
-	// @Tags auth
-	// @Accept json
-	// @Produce json
-	// @Param user body models.User true "Dados do usuário"
-	// @Success 201 {object} models.User
-	// @Failure 400 {object} map[string]string
-	// @Failure 409 {object} map[string]string
-	// @Router /register [post]
-	router.POST("/register", userHandler.Register)
+	// Middleware para rotas de autenticação
+	auth := router.Group("")
+	auth.Use(middleware.MethodNotAllowed())
+	auth.Use(middleware.RequestValidation())
+	{
+		// @Summary Registra um novo usuário
+		// @Description Cria uma nova conta de usuário
+		// @Tags auth
+		// @Accept json
+		// @Produce json
+		// @Param user body models.User true "Dados do usuário"
+		// @Success 201 {object} models.User
+		// @Failure 400 {object} map[string]string
+		// @Failure 409 {object} map[string]string
+		// @Router /register [post]
+		auth.POST("/register", userHandler.Register)
 
-	// @Summary Realiza login
-	// @Description Autentica um usuário e retorna tokens
-	// @Tags auth
-	// @Accept json
-	// @Produce json
-	// @Param credentials body map[string]string true "Credenciais de login"
-	// @Success 200 {object} handlers.LoginResponse
-	// @Failure 400 {object} map[string]string
-	// @Failure 401 {object} map[string]string
-	// @Router /login [post]
-	router.POST("/login", authHandler.Login)
+		// @Summary Realiza login
+		// @Description Autentica um usuário e retorna tokens
+		// @Tags auth
+		// @Accept json
+		// @Produce json
+		// @Param credentials body map[string]string true "Credenciais de login"
+		// @Success 200 {object} handlers.LoginResponse
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /login [post]
+		auth.POST("/login", authHandler.Login)
 
-	// @Summary Atualiza access token
-	// @Description Atualiza o access token usando o refresh token
-	// @Tags auth
-	// @Accept json
-	// @Produce json
-	// @Param refresh body map[string]string true "Refresh token"
-	// @Success 200 {object} handlers.LoginResponse
-	// @Failure 400 {object} map[string]string
-	// @Failure 401 {object} map[string]string
-	// @Router /refresh [post]
-	router.POST("/refresh", authHandler.Refresh)
+		// @Summary Atualiza access token
+		// @Description Atualiza o access token usando o refresh token
+		// @Tags auth
+		// @Accept json
+		// @Produce json
+		// @Param refresh body map[string]string true "Refresh token"
+		// @Success 200 {object} handlers.LoginResponse
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /refresh [post]
+		auth.POST("/refresh", authHandler.Refresh)
 
-	// @Summary Realiza logout
-	// @Description Revoga um refresh token
-	// @Tags auth
-	// @Accept json
-	// @Produce json
-	// @Param refresh body map[string]string true "Refresh token"
-	// @Success 204 "No Content"
-	// @Failure 400 {object} map[string]string
-	// @Failure 404 {object} map[string]string
-	// @Router /logout [post]
-	router.POST("/logout", authHandler.Logout)
+		// @Summary Realiza logout
+		// @Description Revoga um refresh token
+		// @Tags auth
+		// @Accept json
+		// @Produce json
+		// @Param refresh body map[string]string true "Refresh token"
+		// @Success 204 "No Content"
+		// @Failure 400 {object} map[string]string
+		// @Failure 404 {object} map[string]string
+		// @Router /logout [post]
+		auth.POST("/logout", authHandler.Logout)
+	}
 }
 
 // setupProtectedRoutes configura as rotas protegidas por JWT

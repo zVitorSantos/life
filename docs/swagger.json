@@ -20,8 +20,259 @@
     },
     "host": "localhost:8080",
     "basePath": "/api",
-    "paths": {},
+    "paths": {
+        "/api-keys": {
+            "get": {
+                "description": "Retorna todas as chaves de API do usuário autenticado",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api-keys"
+                ],
+                "summary": "Lista chaves de API",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.APIKey"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria uma nova chave de API para o usuário autenticado",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api-keys"
+                ],
+                "summary": "Cria uma nova chave de API",
+                "parameters": [
+                    {
+                        "description": "Dados da chave de API",
+                        "name": "apiKey",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.APIKey"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIKey"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api-keys/{id}": {
+            "put": {
+                "description": "Atualiza os dados de uma chave de API específica",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api-keys"
+                ],
+                "summary": "Atualiza chave de API",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da chave de API",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dados da chave de API",
+                        "name": "apiKey",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.APIKey"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIKey"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove uma chave de API específica",
+                "tags": [
+                    "api-keys"
+                ],
+                "summary": "Remove chave de API",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da chave de API",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.APIKey": {
+            "description": "Informações da chave de API",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "Data de criação",
+                    "type": "string",
+                    "example": "2024-05-25T20:00:00Z"
+                },
+                "expires_at": {
+                    "description": "Data de expiração",
+                    "type": "string",
+                    "example": "2024-12-31T23:59:59Z"
+                },
+                "id": {
+                    "description": "ID único da chave",
+                    "type": "integer",
+                    "example": 1
+                },
+                "is_active": {
+                    "description": "Status da chave (ativo/inativo)",
+                    "type": "boolean"
+                },
+                "key": {
+                    "description": "Chave de API (hash)",
+                    "type": "string"
+                },
+                "last_used_at": {
+                    "description": "Último uso da chave",
+                    "type": "string",
+                    "example": "2024-05-25T20:00:00Z"
+                },
+                "name": {
+                    "description": "Nome da chave para identificação",
+                    "type": "string",
+                    "example": "Frontend App"
+                },
+                "rate_limit": {
+                    "description": "Limite de requisições por minuto",
+                    "type": "integer",
+                    "example": 60
+                },
+                "updated_at": {
+                    "description": "Data da última atualização",
+                    "type": "string",
+                    "example": "2024-05-25T20:00:00Z"
+                },
+                "user_id": {
+                    "description": "ID do usuário dono da chave",
+                    "type": "integer"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "API Key for authentication",
+            "type": "apiKey",
+            "name": "X-API-Key",
+            "in": "header"
+        },
         "Bearer": {
             "description": "Type \"Bearer\" followed by a space and JWT token.",
             "type": "apiKey",
@@ -41,6 +292,10 @@
         {
             "description": "Operações de perfil",
             "name": "profile"
+        },
+        {
+            "description": "Gerenciamento de chaves de API",
+            "name": "api-keys"
         }
     ]
 }
