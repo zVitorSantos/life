@@ -2,6 +2,7 @@ package main
 
 import (
 	"life/config"
+	_ "life/docs" // Importa a documentação Swagger
 	"life/logger"
 	"life/routes"
 	"os"
