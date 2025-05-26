@@ -51,7 +51,7 @@ func TestAuthFlow(t *testing.T) {
 
 // testRegister testa o registro de um novo usuário
 func testRegister(t *testing.T) *User {
-	url := fmt.Sprintf("%s/auth/register", baseURL)
+	url := fmt.Sprintf("%s/api/v1/register", baseURL)
 
 	timestamp := time.Now().Format("20060102150405")
 	data := map[string]string{
@@ -90,7 +90,7 @@ func testRegister(t *testing.T) *User {
 
 // testLogin testa o login de um usuário
 func testLogin(t *testing.T, username, password string) *LoginResponse {
-	url := fmt.Sprintf("%s/auth/login", baseURL)
+	url := fmt.Sprintf("%s/api/v1/login", baseURL)
 
 	data := map[string]string{
 		"username": username,
@@ -126,7 +126,7 @@ func testLogin(t *testing.T, username, password string) *LoginResponse {
 
 // testRefreshToken testa o refresh do token
 func testRefreshToken(t *testing.T, refreshToken string) *LoginResponse {
-	url := fmt.Sprintf("%s/auth/refresh", baseURL)
+	url := fmt.Sprintf("%s/api/v1/refresh", baseURL)
 
 	data := map[string]string{
 		"refresh_token": refreshToken,
@@ -161,7 +161,7 @@ func testRefreshToken(t *testing.T, refreshToken string) *LoginResponse {
 
 // testLogout testa o logout
 func testLogout(t *testing.T, refreshToken string) bool {
-	url := fmt.Sprintf("%s/auth/logout", baseURL)
+	url := fmt.Sprintf("%s/api/v1/logout", baseURL)
 
 	data := map[string]string{
 		"refresh_token": refreshToken,

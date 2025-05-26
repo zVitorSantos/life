@@ -42,7 +42,7 @@ func TestProfileFlow(t *testing.T) {
 
 // testGetProfile testa a obtenção do perfil do usuário
 func testGetProfile(t *testing.T, accessToken string) *User {
-	url := fmt.Sprintf("%s/profile", baseURL)
+	url := fmt.Sprintf("%s/api/v1/profile", baseURL)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -76,7 +76,7 @@ func testGetProfile(t *testing.T, accessToken string) *User {
 
 // testUpdateProfile testa a atualização do perfil do usuário
 func testUpdateProfile(t *testing.T, accessToken string) *User {
-	url := fmt.Sprintf("%s/profile", baseURL)
+	url := fmt.Sprintf("%s/api/v1/profile", baseURL)
 
 	timestamp := time.Now().Format("20060102150405")
 	data := map[string]string{
