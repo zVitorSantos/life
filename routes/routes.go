@@ -54,20 +54,20 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	setupHealthRoutes(r, healthHandler)
 
 	// Rotas públicas
-	public := r.Group("/api")
+	public := r.Group("/api/v1")
 	{
 		setupPublicRoutes(public, userHandler, authHandler)
 	}
 
 	// Rotas protegidas por JWT
-	protected := r.Group("/api")
+	protected := r.Group("/api/v1")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		setupProtectedRoutes(protected, userHandler, apiKeyHandler)
 	}
 
 	// Rotas protegidas por API Key
-	apiProtected := r.Group("/api")
+	apiProtected := r.Group("/api/v1")
 	apiProtected.Use(middleware.APIKeyAuth(db))
 	{
 		setupAPIProtectedRoutes(apiProtected)
