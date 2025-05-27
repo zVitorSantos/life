@@ -142,9 +142,10 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, LoginResponse{
-		AccessToken: accessToken,
-		TokenType:   "Bearer",
-		ExpiresIn:   3600, // 1 hora
+		AccessToken:  accessToken,
+		RefreshToken: refreshData.RefreshToken,
+		TokenType:    "Bearer",
+		ExpiresIn:    3600, // 1 hora
 	})
 }
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -25,6 +26,7 @@ type LoginResponse struct {
 
 // TestAuthFlow testa o fluxo completo de autenticação
 func TestAuthFlow(t *testing.T) {
+	setupTest(t)
 	// 1. Registro
 	user := testRegister(t)
 	if user == nil {
@@ -51,7 +53,7 @@ func TestAuthFlow(t *testing.T) {
 
 // testRegister testa o registro de um novo usuário
 func testRegister(t *testing.T) *User {
-	url := fmt.Sprintf("%s/api/v1/register", baseURL)
+	url := fmt.Sprintf("%s/register", baseURL)
 
 	timestamp := time.Now().Format("20060102150405")
 	data := map[string]string{
@@ -67,20 +69,37 @@ func testRegister(t *testing.T) *User {
 		return nil
 	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	// Log do corpo da requisição
+	t.Logf("Corpo da requisição: %s", string(jsonData))
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Errorf("Erro ao criar requisição: %v", err)
+		return nil
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Errorf("Erro na requisição: %v", err)
 		return nil
 	}
 	defer resp.Body.Close()
 
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
 	if resp.StatusCode != http.StatusCreated {
-		t.Errorf("Status code esperado %d, recebido %d", http.StatusCreated, resp.StatusCode)
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusCreated, resp.StatusCode, string(body))
 		return nil
 	}
 
 	var user User
-	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&user); err != nil {
 		t.Errorf("Erro ao decodificar resposta: %v", err)
 		return nil
 	}
@@ -90,7 +109,7 @@ func testRegister(t *testing.T) *User {
 
 // testLogin testa o login de um usuário
 func testLogin(t *testing.T, username, password string) *LoginResponse {
-	url := fmt.Sprintf("%s/api/v1/login", baseURL)
+	url := fmt.Sprintf("%s/login", baseURL)
 
 	data := map[string]string{
 		"username": username,
@@ -103,20 +122,37 @@ func testLogin(t *testing.T, username, password string) *LoginResponse {
 		return nil
 	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	// Log do corpo da requisição
+	t.Logf("Corpo da requisição: %s", string(jsonData))
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Errorf("Erro ao criar requisição: %v", err)
+		return nil
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Errorf("Erro na requisição: %v", err)
 		return nil
 	}
 	defer resp.Body.Close()
 
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status code esperado %d, recebido %d", http.StatusOK, resp.StatusCode)
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusOK, resp.StatusCode, string(body))
 		return nil
 	}
 
 	var loginData LoginResponse
-	if err := json.NewDecoder(resp.Body).Decode(&loginData); err != nil {
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&loginData); err != nil {
 		t.Errorf("Erro ao decodificar resposta: %v", err)
 		return nil
 	}
@@ -126,7 +162,7 @@ func testLogin(t *testing.T, username, password string) *LoginResponse {
 
 // testRefreshToken testa o refresh do token
 func testRefreshToken(t *testing.T, refreshToken string) *LoginResponse {
-	url := fmt.Sprintf("%s/api/v1/refresh", baseURL)
+	url := fmt.Sprintf("%s/refresh", baseURL)
 
 	data := map[string]string{
 		"refresh_token": refreshToken,
@@ -138,20 +174,37 @@ func testRefreshToken(t *testing.T, refreshToken string) *LoginResponse {
 		return nil
 	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	// Log do corpo da requisição
+	t.Logf("Corpo da requisição: %s", string(jsonData))
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Errorf("Erro ao criar requisição: %v", err)
+		return nil
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Errorf("Erro na requisição: %v", err)
 		return nil
 	}
 	defer resp.Body.Close()
 
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status code esperado %d, recebido %d", http.StatusOK, resp.StatusCode)
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusOK, resp.StatusCode, string(body))
 		return nil
 	}
 
 	var loginData LoginResponse
-	if err := json.NewDecoder(resp.Body).Decode(&loginData); err != nil {
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&loginData); err != nil {
 		t.Errorf("Erro ao decodificar resposta: %v", err)
 		return nil
 	}
@@ -161,7 +214,7 @@ func testRefreshToken(t *testing.T, refreshToken string) *LoginResponse {
 
 // testLogout testa o logout
 func testLogout(t *testing.T, refreshToken string) bool {
-	url := fmt.Sprintf("%s/api/v1/logout", baseURL)
+	url := fmt.Sprintf("%s/logout", baseURL)
 
 	data := map[string]string{
 		"refresh_token": refreshToken,
@@ -173,15 +226,32 @@ func testLogout(t *testing.T, refreshToken string) bool {
 		return false
 	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	// Log do corpo da requisição
+	t.Logf("Corpo da requisição: %s", string(jsonData))
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Errorf("Erro ao criar requisição: %v", err)
+		return false
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Errorf("Erro na requisição: %v", err)
 		return false
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status code esperado %d, recebido %d", http.StatusOK, resp.StatusCode)
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
+	if resp.StatusCode != http.StatusNoContent {
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusNoContent, resp.StatusCode, string(body))
 		return false
 	}
 

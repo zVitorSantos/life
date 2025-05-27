@@ -13,16 +13,16 @@ type User struct {
 	ID uint `json:"id" gorm:"primaryKey" example:"1"`
 
 	// Nome de usuário único
-	Username string `json:"username" gorm:"unique;not null" example:"johndoe"`
+	Username string `json:"username" binding:"required" gorm:"unique;not null" example:"johndoe"`
 
 	// Nome de exibição
-	DisplayName string `json:"display_name" gorm:"not null" example:"John Doe"`
+	DisplayName string `json:"display_name" binding:"required" gorm:"not null" example:"John Doe"`
 
 	// Email do usuário
-	Email string `json:"email" gorm:"unique;not null" example:"john@example.com"`
+	Email string `json:"email" binding:"required,email" gorm:"unique;not null" example:"john@example.com"`
 
 	// Senha do usuário (não serializada)
-	Password string `json:"-" gorm:"not null"`
+	Password string `json:"password" binding:"required,min=6" gorm:"not null"`
 
 	// Data de criação
 	CreatedAt time.Time `json:"created_at" example:"2024-05-25T20:00:00Z"`

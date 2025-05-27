@@ -50,6 +50,7 @@ func TestUserModel(t *testing.T) {
 
 // TestUserFlow testa o fluxo completo de usuário
 func TestUserFlow(t *testing.T) {
+	setupTest(t)
 	// 1. Registro e Login
 	user := testRegister(t)
 	if user == nil {
@@ -87,7 +88,7 @@ func TestUserFlow(t *testing.T) {
 
 // testGetUser testa a obtenção de um usuário específico
 func testGetUser(t *testing.T, accessToken string, userID string) *User {
-	url := fmt.Sprintf("%s/api/v1/users/%s", baseURL, userID)
+	url := fmt.Sprintf("%s/users/%s", baseURL, userID)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -121,7 +122,7 @@ func testGetUser(t *testing.T, accessToken string, userID string) *User {
 
 // testUpdateUser testa a atualização de um usuário
 func testUpdateUser(t *testing.T, accessToken string, userID string) *User {
-	url := fmt.Sprintf("%s/api/v1/users/%s", baseURL, userID)
+	url := fmt.Sprintf("%s/users/%s", baseURL, userID)
 
 	timestamp := time.Now().Format("20060102150405")
 	data := map[string]string{
@@ -168,7 +169,7 @@ func testUpdateUser(t *testing.T, accessToken string, userID string) *User {
 
 // testListUsers testa a listagem de usuários
 func testListUsers(t *testing.T, accessToken string) []User {
-	url := fmt.Sprintf("%s/api/v1/users", baseURL)
+	url := fmt.Sprintf("%s/users", baseURL)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

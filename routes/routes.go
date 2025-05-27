@@ -189,6 +189,11 @@ func setupProtectedRoutes(router *gin.RouterGroup, userHandler *handlers.UserHan
 	// @Router /profile [put]
 	router.PUT("/profile", userHandler.UpdateProfile)
 
+	// Rotas de usuário
+	router.GET("/users", userHandler.ListUsers)
+	router.GET("/users/:id", userHandler.GetUser)
+	router.PUT("/users/:id", userHandler.UpdateUser)
+
 	// Rotas de API Key
 	apiKeys := router.Group("/api-keys")
 	{
