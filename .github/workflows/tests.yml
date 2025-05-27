@@ -47,6 +47,7 @@ jobs:
         DB_PASSWORD: postgres
         DB_NAME: life_test
         JWT_SECRET: test_secret
+        JWT_REFRESH_SECRET: test_refresh_secret
         JWT_EXPIRATION: 3600
         GIN_MODE: test
       run: |
@@ -68,7 +69,8 @@ jobs:
     - name: Run tests
       env:
         API_URL: http://localhost:8080/api/v1
-      run: go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
+      run: |
+        go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
