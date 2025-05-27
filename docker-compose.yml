@@ -1,34 +1,36 @@
+version: '3.8'
+
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
-      - DB_HOST=db
+      - DB_HOST=postgres
+      - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=life
-      - DB_PORT=5432
       - JWT_SECRET=seu_jwt_secret_aqui
+      - API_PORT=8080
+      - API_ENV=development
+      - LOG_LEVEL=debug
+      - LOG_FORMAT=json
+    depends_on:
+      - postgres
 
-  db:
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
+  postgres:
+    image: postgres:latest
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=life
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
 volumes:
   postgres_data: 

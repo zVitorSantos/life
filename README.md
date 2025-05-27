@@ -102,15 +102,19 @@ http://localhost:8080/swagger/index.html
 
 ## 🧪 Testes
 
+Para executar todos os testes:
 ```bash
-# Executa todos os testes
-go test ./...
+go test -v ./...
+```
 
-# Executa testes com cobertura
-go test ./... -cover
+Para executar os testes com cobertura:
+```bash
+go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+```
 
-# Executa testes de integração
-go test ./... -tags=integration
+Para visualizar o relatório de cobertura:
+```bash
+go tool cover -html=coverage.txt
 ```
 
 ## 📦 Estrutura do Projeto
