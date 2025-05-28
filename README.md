@@ -1,8 +1,14 @@
 # Life Game API
 
+[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go)](https://golang.org/)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/zVitorSantos/life/ci.yml?branch=main&style=for-the-badge&logo=github-actions)](https://github.com/zVitorSantos/life/actions)
+[![codecov](https://img.shields.io/codecov/c/github/zVitorSantos/life?style=for-the-badge&logo=codecov)](https://codecov.io/gh/zVitorSantos/life)
+[![License](https://img.shields.io/github/license/zVitorSantos/life?style=for-the-badge)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/zVitorSantos/life?style=for-the-badge)](https://goreportcard.com/report/github.com/zVitorSantos/life)
+
 API RESTful para o jogo Life, desenvolvida em Go.
 
-## 🚀 Funcionalidades
+## �� Funcionalidades
 
 - Autenticação com JWT e Refresh Tokens
 - Gerenciamento de usuários
@@ -102,15 +108,44 @@ http://localhost:8080/swagger/index.html
 
 ## 🧪 Testes
 
+### Executando Testes
+
 ```bash
 # Executa todos os testes
-go test ./...
+go test ./tests/...
 
 # Executa testes com cobertura
-go test ./... -cover
+go test ./tests/... -coverprofile=coverage.txt -covermode=atomic
 
-# Executa testes de integração
-go test ./... -tags=integration
+# Visualiza relatório de cobertura
+go tool cover -html=coverage.txt -o coverage.html
+
+# Executa testes com verbose
+go test ./tests/... -v
+```
+
+### Cobertura de Código
+
+O projeto utiliza [Codecov](https://codecov.io/gh/zVitorSantos/life) para monitoramento de cobertura de código:
+
+- **Meta de cobertura**: 70%
+- **Threshold**: 2%
+- **Relatórios automáticos**: Gerados a cada push via GitHub Actions
+
+### Tipos de Teste
+
+- **Testes de Unidade**: Testam componentes individuais
+- **Testes de Integração**: Testam fluxos completos da API
+- **Testes de Modelo**: Validam estruturas de dados
+
+### Estrutura de Testes
+
+```
+tests/
+├── auth_test.go      # Testes de autenticação
+├── profile_test.go   # Testes de perfil
+├── user_test.go      # Testes de modelo de usuário
+└── config.go         # Configuração dos testes
 ```
 
 ## 📦 Estrutura do Projeto
