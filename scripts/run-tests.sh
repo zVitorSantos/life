@@ -33,6 +33,19 @@ export JWT_REFRESH_SECRET=test_refresh_secret
 export PORT=8080
 export ENV=test
 
+# Cria arquivo .env temporário para os testes
+cat > .env << EOF
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=life_test
+DB_PORT=5432
+JWT_SECRET=test_secret
+JWT_REFRESH_SECRET=test_refresh_secret
+PORT=8080
+ENV=test
+EOF
+
 # Inicia a API em background
 echo "🌐 Iniciando API..."
 ./api &
@@ -42,7 +55,7 @@ API_PID=$!
 cleanup() {
     echo "🧹 Limpando..."
     kill $API_PID 2>/dev/null || true
-    rm -f api coverage.txt coverage.html
+    rm -f api coverage.txt coverage.html .env
 }
 trap cleanup EXIT
 

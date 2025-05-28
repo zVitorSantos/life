@@ -43,6 +43,19 @@ $env:JWT_REFRESH_SECRET = "test_refresh_secret"
 $env:PORT = "8080"
 $env:ENV = "test"
 
+# Cria arquivo .env temporario para os testes
+@"
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=life_test
+DB_PORT=5432
+JWT_SECRET=test_secret
+JWT_REFRESH_SECRET=test_refresh_secret
+PORT=8080
+ENV=test
+"@ | Out-File -FilePath ".env" -Encoding UTF8
+
 # Inicia a API em background
 Write-Host "Iniciando API..." -ForegroundColor Blue
 $apiProcess = Start-Process -FilePath ".\api.exe" -PassThru -WindowStyle Hidden
@@ -54,7 +67,7 @@ function Cleanup {
         Stop-Process -Id $apiProcess.Id -Force -ErrorAction SilentlyContinue
     }
     if (-not $SkipCleanup) {
-        Remove-Item -Path "api.exe", "coverage.txt", "coverage.html" -ErrorAction SilentlyContinue
+        Remove-Item -Path "api.exe", "coverage.txt", "coverage.html", ".env" -ErrorAction SilentlyContinue
     }
 }
 
