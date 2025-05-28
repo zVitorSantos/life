@@ -48,13 +48,32 @@ jobs:
         DB_PORT: 5432
         JWT_SECRET: test_secret
         JWT_REFRESH_SECRET: test_refresh_secret
+        PORT: 8080
+        ENV: test
       run: |
         ./api &
-        sleep 5
+        API_PID=$!
+        echo "API_PID=$API_PID" >> $GITHUB_ENV
+        
+        # Aguarda a API ficar disponível
+        for i in {1..30}; do
+          if curl -f http://localhost:8080/health > /dev/null 2>&1; then
+            echo "API está rodando!"
+            break
+          fi
+          echo "Aguardando API... ($i/30)"
+          sleep 2
+        done
+        
+        # Verifica se a API está realmente rodando
+        if ! curl -f http://localhost:8080/health > /dev/null 2>&1; then
+          echo "Falha ao iniciar a API"
+          exit 1
+        fi
 
     - name: Run tests
       env:
-        API_URL: http://localhost:8080/api/v1
+        API_URL: http://localhost:8080/api
       run: |
         go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
 
@@ -63,4 +82,11 @@ jobs:
       with:
         file: ./coverage.txt
         fail_ci_if_error: true
-        token: ${{ secrets.CODECOV_TOKEN }} 
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Stop API
+      if: always()
+      run: |
+        if [ ! -z "$API_PID" ]; then
+          kill $API_PID || true
+        fi 

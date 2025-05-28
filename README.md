@@ -108,20 +108,66 @@ http://localhost:8080/swagger/index.html
 
 ## 🧪 Testes
 
-### Executando Testes
+### Executando Testes Localmente
+
+#### Usando Scripts Automatizados
+
+**Linux/macOS:**
+```bash
+# Executa todos os testes com API rodando
+./scripts/run-tests.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+# Executa todos os testes com API rodando
+.\scripts\run-tests.ps1
+
+# Opções disponíveis:
+.\scripts\run-tests.ps1 -SkipBuild    # Pula a compilação
+.\scripts\run-tests.ps1 -SkipCleanup  # Mantém arquivos temporários
+```
+
+#### Executando Manualmente
 
 ```bash
-# Executa todos os testes
-go test ./tests/...
+# 1. Inicie o PostgreSQL (via Docker)
+docker-compose up -d postgres
 
-# Executa testes com cobertura
-go test ./tests/... -coverprofile=coverage.txt -covermode=atomic
+# 2. Configure as variáveis de ambiente
+export DB_HOST=localhost
+export DB_USER=postgres
+export DB_PASSWORD=postgres
+export DB_NAME=life_test
+export DB_PORT=5432
+export JWT_SECRET=test_secret
+export JWT_REFRESH_SECRET=test_refresh_secret
+export PORT=8080
+export ENV=test
 
-# Visualiza relatório de cobertura
+# 3. Compile e inicie a API
+go build -o api
+./api &
+
+# 4. Execute os testes
+export API_URL=http://localhost:8080/api
+go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
+
+# 5. Gere relatório de cobertura
 go tool cover -html=coverage.txt -o coverage.html
+```
 
-# Executa testes com verbose
+### Comandos de Teste Rápidos
+
+```bash
+# Apenas testes unitários (sem API)
+go test ./tests/ -run TestUserModel
+
+# Testes com verbose
 go test ./tests/... -v
+
+# Testes com cobertura detalhada
+go test ./tests/... -coverprofile=coverage.txt -covermode=atomic -coverpkg=./...
 ```
 
 ### Cobertura de Código
