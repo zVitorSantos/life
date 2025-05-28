@@ -6,33 +6,33 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "🚀 Iniciando testes locais..." -ForegroundColor Green
+Write-Host "Iniciando testes locais..." -ForegroundColor Green
 
-# Verifica se o Go está instalado
+# Verifica se o Go esta instalado
 if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
-    Write-Host "❌ Go não está instalado" -ForegroundColor Red
+    Write-Host "Go nao esta instalado" -ForegroundColor Red
     exit 1
 }
 
-# Verifica se o PostgreSQL está rodando (via Docker)
+# Verifica se o PostgreSQL esta rodando (via Docker)
 try {
     $dockerStatus = docker-compose ps postgres 2>$null
     if (-not $dockerStatus -or $dockerStatus -notmatch "Up") {
-        Write-Host "⚠️  PostgreSQL não está rodando. Iniciando com Docker..." -ForegroundColor Yellow
+        Write-Host "PostgreSQL nao esta rodando. Iniciando com Docker..." -ForegroundColor Yellow
         docker-compose up -d postgres
         Start-Sleep 5
     }
 } catch {
-    Write-Host "⚠️  Docker não disponível. Certifique-se de que o PostgreSQL está rodando na porta 5432" -ForegroundColor Yellow
+    Write-Host "Docker nao disponivel. Certifique-se de que o PostgreSQL esta rodando na porta 5432" -ForegroundColor Yellow
 }
 
 # Compila a API
 if (-not $SkipBuild) {
-    Write-Host "🔨 Compilando API..." -ForegroundColor Blue
+    Write-Host "Compilando API..." -ForegroundColor Blue
     go build -o api.exe
 }
 
-# Configura variáveis de ambiente para teste
+# Configura variaveis de ambiente para teste
 $env:DB_HOST = "localhost"
 $env:DB_USER = "postgres"
 $env:DB_PASSWORD = "postgres"
@@ -44,12 +44,12 @@ $env:PORT = "8080"
 $env:ENV = "test"
 
 # Inicia a API em background
-Write-Host "🌐 Iniciando API..." -ForegroundColor Blue
+Write-Host "Iniciando API..." -ForegroundColor Blue
 $apiProcess = Start-Process -FilePath ".\api.exe" -PassThru -WindowStyle Hidden
 
-# Função para limpar ao sair
+# Funcao para limpar ao sair
 function Cleanup {
-    Write-Host "🧹 Limpando..." -ForegroundColor Yellow
+    Write-Host "Limpando..." -ForegroundColor Yellow
     if ($apiProcess -and -not $apiProcess.HasExited) {
         Stop-Process -Id $apiProcess.Id -Force -ErrorAction SilentlyContinue
     }
@@ -58,12 +58,12 @@ function Cleanup {
     }
 }
 
-# Registra função de limpeza para execução ao sair
+# Registra funcao de limpeza para execucao ao sair
 Register-EngineEvent -SourceIdentifier PowerShell.Exiting -Action { Cleanup }
 
 try {
-    # Aguarda a API ficar disponível
-    Write-Host "⏳ Aguardando API ficar disponível..." -ForegroundColor Blue
+    # Aguarda a API ficar disponivel
+    Write-Host "Aguardando API ficar disponivel..." -ForegroundColor Blue
     $maxAttempts = 30
     $attempt = 0
     $apiReady = $false
@@ -73,7 +73,7 @@ try {
         try {
             $response = Invoke-WebRequest -Uri "http://localhost:8080/health" -Method GET -TimeoutSec 2 -ErrorAction Stop
             if ($response.StatusCode -eq 200) {
-                Write-Host "✅ API está rodando!" -ForegroundColor Green
+                Write-Host "API esta rodando!" -ForegroundColor Green
                 $apiReady = $true
                 break
             }
@@ -84,25 +84,25 @@ try {
     } while ($attempt -lt $maxAttempts)
 
     if (-not $apiReady) {
-        Write-Host "❌ Falha ao iniciar a API" -ForegroundColor Red
+        Write-Host "Falha ao iniciar a API" -ForegroundColor Red
         exit 1
     }
 
     # Executa os testes
-    Write-Host "🧪 Executando testes..." -ForegroundColor Blue
+    Write-Host "Executando testes..." -ForegroundColor Blue
     $env:API_URL = "http://localhost:8080/api"
     go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
 
     if ($LASTEXITCODE -eq 0) {
-        # Gera relatório de cobertura HTML
-        Write-Host "📊 Gerando relatório de cobertura..." -ForegroundColor Blue
+        # Gera relatorio de cobertura HTML
+        Write-Host "Gerando relatorio de cobertura..." -ForegroundColor Blue
         go tool cover -html=coverage.txt -o coverage.html
 
-        Write-Host "✅ Testes concluídos com sucesso!" -ForegroundColor Green
-        Write-Host "📊 Relatório de cobertura: coverage.html" -ForegroundColor Cyan
-        Write-Host "📄 Arquivo de cobertura: coverage.txt" -ForegroundColor Cyan
+        Write-Host "Testes concluidos com sucesso!" -ForegroundColor Green
+        Write-Host "Relatorio de cobertura: coverage.html" -ForegroundColor Cyan
+        Write-Host "Arquivo de cobertura: coverage.txt" -ForegroundColor Cyan
     } else {
-        Write-Host "❌ Testes falharam!" -ForegroundColor Red
+        Write-Host "Testes falharam!" -ForegroundColor Red
         exit $LASTEXITCODE
     }
 
