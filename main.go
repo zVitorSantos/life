@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 // @title Life Game API
@@ -49,9 +50,12 @@ import (
 // @tag.description Gerenciamento de chaves de API
 
 func main() {
-	// Carrega variáveis de ambiente
+	// Carrega variáveis de ambiente (opcional)
 	if err := godotenv.Load(); err != nil {
-		logger.Fatal("Erro ao carregar .env")
+		// Log apenas como warning, não como fatal
+		// Em ambientes de CI/produção, as variáveis podem já estar definidas
+		logger.InitLogger() // Inicializa logger antes de usar
+		log.Warn().Msg("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
 	}
 
 	// Inicializa o container
