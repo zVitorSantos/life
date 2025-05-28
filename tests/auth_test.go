@@ -43,17 +43,17 @@ func TestAuthFlow(t *testing.T) {
 		t.Fatal("Falha no refresh token")
 	}
 
-	// 4. Logout
-	if !testLogout(t, newLoginData.RefreshToken) {
+	// 4. Logout (usa o refresh token original do login)
+	if !testLogout(t, loginData.RefreshToken) {
 		t.Fatal("Falha no logout")
 	}
 }
 
 // testRegister testa o registro de um novo usuário
 func testRegister(t *testing.T) *User {
-	url := fmt.Sprintf("%s/auth/register", baseURL)
+	url := fmt.Sprintf("%s/register", baseURL)
 
-	timestamp := time.Now().Format("20060102150405")
+	timestamp := fmt.Sprintf("%d", time.Now().UnixNano())
 	data := map[string]string{
 		"username":     fmt.Sprintf("test_user_%s", timestamp),
 		"password":     "senha123",
@@ -90,7 +90,7 @@ func testRegister(t *testing.T) *User {
 
 // testLogin testa o login de um usuário
 func testLogin(t *testing.T, username, password string) *LoginResponse {
-	url := fmt.Sprintf("%s/auth/login", baseURL)
+	url := fmt.Sprintf("%s/login", baseURL)
 
 	data := map[string]string{
 		"username": username,
@@ -126,7 +126,7 @@ func testLogin(t *testing.T, username, password string) *LoginResponse {
 
 // testRefreshToken testa o refresh do token
 func testRefreshToken(t *testing.T, refreshToken string) *LoginResponse {
-	url := fmt.Sprintf("%s/auth/refresh", baseURL)
+	url := fmt.Sprintf("%s/refresh", baseURL)
 
 	data := map[string]string{
 		"refresh_token": refreshToken,
@@ -161,7 +161,7 @@ func testRefreshToken(t *testing.T, refreshToken string) *LoginResponse {
 
 // testLogout testa o logout
 func testLogout(t *testing.T, refreshToken string) bool {
-	url := fmt.Sprintf("%s/auth/logout", baseURL)
+	url := fmt.Sprintf("%s/logout", baseURL)
 
 	data := map[string]string{
 		"refresh_token": refreshToken,
@@ -180,8 +180,8 @@ func testLogout(t *testing.T, refreshToken string) bool {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status code esperado %d, recebido %d", http.StatusOK, resp.StatusCode)
+	if resp.StatusCode != http.StatusNoContent {
+		t.Errorf("Status code esperado %d, recebido %d", http.StatusNoContent, resp.StatusCode)
 		return false
 	}
 

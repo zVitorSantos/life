@@ -78,7 +78,7 @@ func testGetProfile(t *testing.T, accessToken string) *User {
 func testUpdateProfile(t *testing.T, accessToken string) *User {
 	url := fmt.Sprintf("%s/profile", baseURL)
 
-	timestamp := time.Now().Format("20060102150405")
+	timestamp := fmt.Sprintf("%d", time.Now().UnixNano())
 	data := map[string]string{
 		"display_name": "Usuário Teste Atualizado",
 		"email":        fmt.Sprintf("test_updated_%s@example.com", timestamp),

@@ -109,7 +109,6 @@ func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler
 func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) {
 	// Middleware para rotas de autenticação
 	auth := router.Group("")
-	auth.Use(middleware.MethodNotAllowed())
 	auth.Use(middleware.RequestValidation())
 	{
 		// @Summary Registra um novo usuário

@@ -15,7 +15,7 @@ services:
       - JWT_SECRET=seu_jwt_secret_aqui
 
   db:
-    image: postgres:15-alpine
+    image: postgres:17
     ports:
       - "5432:5432"
     environment:

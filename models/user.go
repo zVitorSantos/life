@@ -21,8 +21,8 @@ type User struct {
 	// Email do usuário
 	Email string `json:"email" gorm:"unique;not null" example:"john@example.com"`
 
-	// Senha do usuário (não serializada)
-	Password string `json:"-" gorm:"not null"`
+	// Senha do usuário (não serializada na resposta)
+	Password string `json:"password,omitempty" gorm:"not null"`
 
 	// Data de criação
 	CreatedAt time.Time `json:"created_at" example:"2024-05-25T20:00:00Z"`
