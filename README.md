@@ -6,18 +6,29 @@
 [![License](https://img.shields.io/github/license/zVitorSantos/life?style=for-the-badge)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/zVitorSantos/life?style=for-the-badge)](https://goreportcard.com/report/github.com/zVitorSantos/life)
 
-API RESTful para o jogo Life, desenvolvida em Go.
+API RESTful para o jogo Life, desenvolvida em Go com sistema completo de jogo, economia virtual e progressão de jogadores.
 
-## �� Funcionalidades
+## 🎮 Funcionalidades
 
+### Sistema de Autenticação
 - Autenticação com JWT e Refresh Tokens
 - Gerenciamento de usuários
 - Sistema de API Keys
+
+### Sistema de Jogo
+- **GameProfile**: Perfis de jogo com sistema de levels e XP
+- **Wallet**: Sistema de carteira multi-moeda (Coins, Gems, Tokens)
+- **Transaction**: Sistema completo de transações com auditoria
+- **GameSession**: Controle de sessões ativas dos jogadores
+- **Leaderboard**: Ranking de jogadores por XP
+
+### Recursos Técnicos
 - Health Checks
 - Documentação Swagger
 - Logging estruturado
 - Validação de dados
 - Tratamento de erros personalizado
+- Testes automatizados com 70%+ de cobertura
 
 ## 📋 Pré-requisitos
 
@@ -94,6 +105,35 @@ http://localhost:8080/swagger/index.html
 #### Usuários
 - `GET /api/v1/profile` - Obtém perfil do usuário
 - `PUT /api/v1/profile` - Atualiza perfil do usuário
+
+#### GameProfile (Sistema de Jogo)
+- `POST /api/v1/game-profile` - Cria perfil de jogo
+- `GET /api/v1/game-profile` - Obtém perfil de jogo
+- `PUT /api/v1/game-profile` - Atualiza perfil de jogo
+- `POST /api/v1/game-profile/xp` - Adiciona XP (com level up automático)
+- `GET /api/v1/game-profile/stats` - Obtém estatísticas do jogador
+- `PUT /api/v1/game-profile/stats` - Atualiza estatísticas
+- `PUT /api/v1/game-profile/last-login` - Atualiza último login
+
+#### Wallet (Sistema de Carteira)
+- `POST /api/v1/wallet` - Cria carteira
+- `GET /api/v1/wallet` - Obtém dados da carteira
+- `GET /api/v1/wallet/balance/{currency}` - Obtém saldo específico
+- `GET /api/v1/wallet/balances` - Obtém todos os saldos
+- `POST /api/v1/wallet/lock` - Bloqueia carteira
+- `POST /api/v1/wallet/unlock` - Desbloqueia carteira
+- `GET /api/v1/wallet/status` - Obtém status da carteira
+- `GET /api/v1/wallet/history` - Obtém histórico da carteira
+
+#### Transaction (Sistema de Transações)
+- `POST /api/v1/transactions/add` - Adiciona dinheiro
+- `POST /api/v1/transactions/spend` - Gasta dinheiro
+- `POST /api/v1/transactions/transfer` - Transfere entre carteiras
+- `GET /api/v1/transactions/history` - Obtém histórico de transações
+- `GET /api/v1/transactions/{id}` - Obtém transação específica
+
+#### Leaderboard
+- `GET /api/v1/leaderboard` - Obtém ranking de jogadores
 
 #### API Keys
 - `POST /api/v1/api-keys` - Cria uma nova API key
@@ -194,10 +234,13 @@ O projeto utiliza [Codecov](https://codecov.io/gh/zVitorSantos/life) para monito
 
 ```
 tests/
-├── auth_test.go      # Testes de autenticação
-├── profile_test.go   # Testes de perfil
-├── user_test.go      # Testes de modelo de usuário
-└── config.go         # Configuração dos testes
+├── auth_test.go           # Testes de autenticação
+├── profile_test.go        # Testes de perfil
+├── user_test.go           # Testes de modelo de usuário
+├── game_profile_test.go   # Testes do sistema de perfil de jogo
+├── wallet_test.go         # Testes do sistema de carteira
+├── transaction_test.go    # Testes do sistema de transações
+└── config.go              # Configuração dos testes
 ```
 
 ## 📦 Estrutura do Projeto
