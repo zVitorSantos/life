@@ -86,20 +86,20 @@ http://localhost:8080/swagger/index.html
 ### Endpoints Principais
 
 #### Autenticação
-- `POST /api/register` - Registra um novo usuário
-- `POST /api/login` - Realiza login e retorna tokens
-- `POST /api/refresh` - Atualiza o access token
-- `POST /api/logout` - Revoga um refresh token
+- `POST /api/v1/register` - Registra um novo usuário
+- `POST /api/v1/login` - Realiza login e retorna tokens
+- `POST /api/v1/refresh` - Atualiza o access token
+- `POST /api/v1/logout` - Revoga um refresh token
 
 #### Usuários
-- `GET /api/profile` - Obtém perfil do usuário
-- `PUT /api/profile` - Atualiza perfil do usuário
+- `GET /api/v1/profile` - Obtém perfil do usuário
+- `PUT /api/v1/profile` - Atualiza perfil do usuário
 
 #### API Keys
-- `POST /api/api-keys` - Cria uma nova API key
-- `GET /api/api-keys` - Lista API keys do usuário
-- `PUT /api/api-keys/{id}` - Atualiza uma API key
-- `DELETE /api/api-keys/{id}` - Remove uma API key
+- `POST /api/v1/api-keys` - Cria uma nova API key
+- `GET /api/v1/api-keys` - Lista API keys do usuário
+- `PUT /api/v1/api-keys/{id}` - Atualiza uma API key
+- `DELETE /api/v1/api-keys/{id}` - Remove uma API key
 
 #### Health Checks
 - `GET /health` - Verifica a saúde da aplicação

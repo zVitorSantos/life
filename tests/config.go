@@ -10,7 +10,7 @@ import (
 )
 
 // baseURL é a URL base da API
-var baseURL = "http://localhost:8080/api"
+var baseURL = "http://localhost:8080/api/v1"
 
 // setupTest configura o ambiente de teste
 func setupTest(t *testing.T) {

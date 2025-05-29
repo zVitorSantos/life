@@ -74,7 +74,7 @@ jobs:
 
     - name: Run tests
       env:
-        API_URL: http://localhost:8080/api
+        API_URL: http://localhost:8080/api/v1
       run: |
         go test -v -race -coverprofile=coverage.txt -covermode=atomic ./tests/...
 

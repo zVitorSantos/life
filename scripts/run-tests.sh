@@ -78,7 +78,7 @@ fi
 
 # Executa os testes
 echo "🧪 Executando testes..."
-export API_URL=http://localhost:8080/api
+export API_URL=http://localhost:8080/api/v1
 go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
 
 # Gera relatório de cobertura HTML
