@@ -42,6 +42,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	apiKeyHandler := handlers.NewAPIKeyHandler(db)
 	authHandler := handlers.NewAuthHandler(db)
 	healthHandler := handlers.NewHealthHandler(db)
+	gameProfileHandler := handlers.NewGameProfileHandler(db)
+	walletHandler := handlers.NewWalletHandler(db)
+	transactionHandler := handlers.NewTransactionHandler(db)
 
 	// Middleware global
 	r.Use(gin.Recovery())
@@ -63,7 +66,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	protected := r.Group("/api/v1")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		setupProtectedRoutes(protected, userHandler, apiKeyHandler)
+		setupProtectedRoutes(protected, userHandler, apiKeyHandler, gameProfileHandler, walletHandler, transactionHandler)
 	}
 
 	// Rotas protegidas por API Key
@@ -162,7 +165,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 }
 
 // setupProtectedRoutes configura as rotas protegidas por JWT
-func setupProtectedRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler, apiKeyHandler *handlers.APIKeyHandler) {
+func setupProtectedRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler, apiKeyHandler *handlers.APIKeyHandler, gameProfileHandler *handlers.GameProfileHandler, walletHandler *handlers.WalletHandler, transactionHandler *handlers.TransactionHandler) {
 	// Rotas de perfil
 	// @Summary Obtém perfil do usuário
 	// @Description Retorna os dados do perfil do usuário autenticado
@@ -245,6 +248,237 @@ func setupProtectedRoutes(router *gin.RouterGroup, userHandler *handlers.UserHan
 		// @Failure 404 {object} map[string]string
 		// @Router /api-keys/{id} [put]
 		apiKeys.PUT("/:id", apiKeyHandler.UpdateAPIKey)
+	}
+
+	// Rotas de Game Profile
+	gameProfile := router.Group("/game-profile")
+	{
+		// @Summary Cria um novo perfil de jogo
+		// @Description Cria um novo perfil de jogo para o usuário autenticado
+		// @Tags game-profile
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 201 {object} models.GameProfile
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /game-profile [post]
+		gameProfile.POST("", gameProfileHandler.CreateGameProfile)
+
+		// @Summary Obtém perfil de jogo
+		// @Description Retorna os dados do perfil de jogo do usuário autenticado
+		// @Tags game-profile
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} models.GameProfile
+		// @Failure 401 {object} map[string]string
+		// @Failure 404 {object} map[string]string
+		// @Router /game-profile [get]
+		gameProfile.GET("", gameProfileHandler.GetGameProfile)
+
+		// @Summary Atualiza perfil de jogo
+		// @Description Atualiza os dados do perfil de jogo do usuário autenticado
+		// @Tags game-profile
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 200 {object} models.GameProfile
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Failure 404 {object} map[string]string
+		// @Router /game-profile [put]
+		gameProfile.PUT("", gameProfileHandler.UpdateGameProfile)
+
+		// @Summary Adiciona XP ao perfil
+		// @Description Adiciona XP ao perfil de jogo do usuário autenticado
+		// @Tags game-profile
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /game-profile/xp [post]
+		gameProfile.POST("/xp", gameProfileHandler.AddXP)
+
+		// @Summary Obtém estatísticas do perfil
+		// @Description Retorna as estatísticas do perfil de jogo
+		// @Tags game-profile
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /game-profile/stats [get]
+		gameProfile.GET("/stats", gameProfileHandler.GetStats)
+
+		// @Summary Atualiza último login
+		// @Description Atualiza o timestamp do último login
+		// @Tags game-profile
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /game-profile/last-login [put]
+		gameProfile.PUT("/last-login", gameProfileHandler.UpdateLastLogin)
+	}
+
+	// @Summary Obtém ranking de jogadores
+	// @Description Retorna o ranking dos melhores jogadores
+	// @Tags game-profile
+	// @Security Bearer
+	// @Produce json
+	// @Success 200 {object} map[string]interface{}
+	// @Router /leaderboard [get]
+	router.GET("/leaderboard", gameProfileHandler.GetLeaderboard)
+
+	// Rotas de Wallet
+	wallet := router.Group("/wallet")
+	{
+		// @Summary Cria uma nova carteira
+		// @Description Cria uma nova carteira para o usuário autenticado
+		// @Tags wallet
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 201 {object} models.Wallet
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet [post]
+		wallet.POST("", walletHandler.CreateWallet)
+
+		// @Summary Obtém carteira
+		// @Description Retorna os dados da carteira do usuário autenticado
+		// @Tags wallet
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} models.Wallet
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet [get]
+		wallet.GET("", walletHandler.GetWallet)
+
+		// @Summary Obtém saldo específico
+		// @Description Retorna o saldo de uma moeda específica
+		// @Tags wallet
+		// @Security Bearer
+		// @Param currency path string true "Tipo de moeda (coins, gems, tokens)"
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet/balance/{currency} [get]
+		wallet.GET("/balance/:currency", walletHandler.GetBalance)
+
+		// @Summary Obtém todos os saldos
+		// @Description Retorna todos os saldos da carteira
+		// @Tags wallet
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet/balances [get]
+		wallet.GET("/balances", walletHandler.GetAllBalances)
+
+		// @Summary Bloqueia carteira
+		// @Description Bloqueia a carteira do usuário
+		// @Tags wallet
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet/lock [post]
+		wallet.POST("/lock", walletHandler.LockWallet)
+
+		// @Summary Desbloqueia carteira
+		// @Description Desbloqueia a carteira do usuário
+		// @Tags wallet
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet/unlock [post]
+		wallet.POST("/unlock", walletHandler.UnlockWallet)
+
+		// @Summary Status da carteira
+		// @Description Obtém o status completo da carteira
+		// @Tags wallet
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet/status [get]
+		wallet.GET("/status", walletHandler.GetWalletStatus)
+
+		// @Summary Histórico da carteira
+		// @Description Obtém o histórico de transações da carteira
+		// @Tags wallet
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /wallet/history [get]
+		wallet.GET("/history", walletHandler.GetWalletHistory)
+	}
+
+	// Rotas de Transaction
+	transactions := router.Group("/transactions")
+	{
+		// @Summary Adiciona dinheiro
+		// @Description Adiciona dinheiro à carteira do usuário
+		// @Tags transactions
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /transactions/add [post]
+		transactions.POST("/add", transactionHandler.AddMoney)
+
+		// @Summary Gasta dinheiro
+		// @Description Remove dinheiro da carteira do usuário
+		// @Tags transactions
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /transactions/spend [post]
+		transactions.POST("/spend", transactionHandler.SpendMoney)
+
+		// @Summary Transfere dinheiro
+		// @Description Transfere dinheiro entre usuários
+		// @Tags transactions
+		// @Security Bearer
+		// @Accept json
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 400 {object} map[string]string
+		// @Failure 401 {object} map[string]string
+		// @Router /transactions/transfer [post]
+		transactions.POST("/transfer", transactionHandler.TransferMoney)
+
+		// @Summary Histórico de transações
+		// @Description Obtém o histórico de transações do usuário
+		// @Tags transactions
+		// @Security Bearer
+		// @Produce json
+		// @Success 200 {object} map[string]interface{}
+		// @Failure 401 {object} map[string]string
+		// @Router /transactions/history [get]
+		transactions.GET("/history", transactionHandler.GetTransactionHistory)
+
+		// @Summary Obtém transação
+		// @Description Retorna os dados de uma transação específica
+		// @Tags transactions
+		// @Security Bearer
+		// @Param id path int true "ID da transação"
+		// @Success 200 {object} models.Transaction
+		// @Failure 401 {object} map[string]string
+		// @Failure 404 {object} map[string]string
+		// @Router /transactions/{id} [get]
+		transactions.GET("/:id", transactionHandler.GetTransaction)
 	}
 }
 
