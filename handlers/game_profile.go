@@ -73,12 +73,7 @@ func (h *GameProfileHandler) CreateGameProfile(c *gin.Context) {
 		return
 	}
 
-	// Carrega o perfil criado com as relações
-	if err := h.db.Preload("User").First(&gameProfile, gameProfile.ID).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao carregar perfil criado"})
-		return
-	}
-
+	// Retorna o perfil criado sem carregar a relação User
 	c.JSON(http.StatusCreated, gameProfile)
 }
 
@@ -119,12 +114,7 @@ func (h *GameProfileHandler) UpdateGameProfile(c *gin.Context) {
 		return
 	}
 
-	// Carrega o perfil atualizado com as relações
-	if err := h.db.Preload("User").First(&gameProfile, gameProfile.ID).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao carregar perfil atualizado"})
-		return
-	}
-
+	// Retorna o perfil atualizado sem carregar a relação User
 	c.JSON(http.StatusOK, gameProfile)
 }
 
