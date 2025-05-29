@@ -1,8 +1,14 @@
 # Life Game API
 
+[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go)](https://golang.org/)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/zVitorSantos/life/ci.yml?branch=main&style=for-the-badge&logo=github-actions)](https://github.com/zVitorSantos/life/actions)
+[![codecov](https://img.shields.io/codecov/c/github/zVitorSantos/life?style=for-the-badge&logo=codecov)](https://codecov.io/gh/zVitorSantos/life)
+[![License](https://img.shields.io/github/license/zVitorSantos/life?style=for-the-badge)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/zVitorSantos/life?style=for-the-badge)](https://goreportcard.com/report/github.com/zVitorSantos/life)
+
 API RESTful para o jogo Life, desenvolvida em Go.
 
-## 🚀 Funcionalidades
+## �� Funcionalidades
 
 - Autenticação com JWT e Refresh Tokens
 - Gerenciamento de usuários
@@ -80,20 +86,20 @@ http://localhost:8080/swagger/index.html
 ### Endpoints Principais
 
 #### Autenticação
-- `POST /api/register` - Registra um novo usuário
-- `POST /api/login` - Realiza login e retorna tokens
-- `POST /api/refresh` - Atualiza o access token
-- `POST /api/logout` - Revoga um refresh token
+- `POST /api/v1/register` - Registra um novo usuário
+- `POST /api/v1/login` - Realiza login e retorna tokens
+- `POST /api/v1/refresh` - Atualiza o access token
+- `POST /api/v1/logout` - Revoga um refresh token
 
 #### Usuários
-- `GET /api/profile` - Obtém perfil do usuário
-- `PUT /api/profile` - Atualiza perfil do usuário
+- `GET /api/v1/profile` - Obtém perfil do usuário
+- `PUT /api/v1/profile` - Atualiza perfil do usuário
 
 #### API Keys
-- `POST /api/api-keys` - Cria uma nova API key
-- `GET /api/api-keys` - Lista API keys do usuário
-- `PUT /api/api-keys/{id}` - Atualiza uma API key
-- `DELETE /api/api-keys/{id}` - Remove uma API key
+- `POST /api/v1/api-keys` - Cria uma nova API key
+- `GET /api/v1/api-keys` - Lista API keys do usuário
+- `PUT /api/v1/api-keys/{id}` - Atualiza uma API key
+- `DELETE /api/v1/api-keys/{id}` - Remove uma API key
 
 #### Health Checks
 - `GET /health` - Verifica a saúde da aplicação
@@ -102,19 +108,96 @@ http://localhost:8080/swagger/index.html
 
 ## 🧪 Testes
 
-Para executar todos os testes:
+### Executando Testes Localmente
+
+#### Usando Scripts Automatizados
+
+**Linux/macOS:**
 ```bash
+# Executa todos os testes com API rodando
+./scripts/run-tests.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+# Executa todos os testes com API rodando
+.\scripts\run-tests.ps1
+
+# Opções disponíveis:
+.\scripts\run-tests.ps1 -SkipBuild    # Pula a compilação
+.\scripts\run-tests.ps1 -SkipCleanup  # Mantém arquivos temporários
+```
+
+#### Executando Manualmente
+
+```bash
+# 1. Inicie o PostgreSQL (via Docker)
+docker-compose up -d postgres
+
+# 2. Configure as variáveis de ambiente
+export DB_HOST=localhost
+export DB_USER=postgres
+export DB_PASSWORD=postgres
+export DB_NAME=life_test
+export DB_PORT=5432
+export JWT_SECRET=test_secret
+export JWT_REFRESH_SECRET=test_refresh_secret
+export PORT=8080
+export ENV=test
+
+# 3. Compile e inicie a API
+go build -o api
+./api &
+
+# 4. Execute os testes
+export API_URL=http://localhost:8080/api
+go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
+
+# 5. Gere relatório de cobertura
+go tool cover -html=coverage.txt -o coverage.html
+```
+
+### Comandos de Teste Rápidos
+
+```bash
+# Apenas testes unitários (sem API)
+go test ./tests/ -run TestUserModel
+
+# Testes com verbose
+go test ./tests/... -v
+
+# Testes com cobertura detalhada
+go test ./tests/... -coverprofile=coverage.txt -covermode=atomic -coverpkg=./...
+
+# Para executar todos os testes
 go test -v ./...
-```
 
-Para executar os testes com cobertura:
-```bash
-go test -v -coverprofile=coverage.txt -covermode=atomic ./...
-```
-
-Para visualizar o relatório de cobertura:
-```bash
+# Para visualizar o relatório de cobertura
 go tool cover -html=coverage.txt
+```
+
+### Cobertura de Código
+
+O projeto utiliza [Codecov](https://codecov.io/gh/zVitorSantos/life) para monitoramento de cobertura de código:
+
+- **Meta de cobertura**: 70%
+- **Threshold**: 2%
+- **Relatórios automáticos**: Gerados a cada push via GitHub Actions
+
+### Tipos de Teste
+
+- **Testes de Unidade**: Testam componentes individuais
+- **Testes de Integração**: Testam fluxos completos da API
+- **Testes de Modelo**: Validam estruturas de dados
+
+### Estrutura de Testes
+
+```
+tests/
+├── auth_test.go      # Testes de autenticação
+├── profile_test.go   # Testes de perfil
+├── user_test.go      # Testes de modelo de usuário
+└── config.go         # Configuração dos testes
 ```
 
 ## 📦 Estrutura do Projeto

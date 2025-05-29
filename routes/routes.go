@@ -84,8 +84,8 @@ func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler
 	// @Produce json
 	// @Success 200 {object} handlers.HealthResponse
 	// @Failure 503 {object} handlers.HealthResponse
-	// @Router /api/v1/health [get]
-	router.GET("/api/v1/health", healthHandler.HealthCheck)
+	// @Router /health [get]
+	router.GET("/health", healthHandler.HealthCheck)
 
 	// @Summary Readiness check
 	// @Description Verifica se a aplicação está pronta para receber tráfego
@@ -93,16 +93,16 @@ func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler
 	// @Produce json
 	// @Success 200 {object} handlers.HealthResponse
 	// @Failure 503 {object} handlers.HealthResponse
-	// @Router /api/v1/ready [get]
-	router.GET("/api/v1/ready", healthHandler.ReadinessCheck)
+	// @Router /ready [get]
+	router.GET("/ready", healthHandler.ReadinessCheck)
 
 	// @Summary Liveness check
 	// @Description Verifica se a aplicação está viva
 	// @Tags health
 	// @Produce json
 	// @Success 200 {object} handlers.HealthResponse
-	// @Router /api/v1/live [get]
-	router.GET("/api/v1/live", healthHandler.LivenessCheck)
+	// @Router /live [get]
+	router.GET("/live", healthHandler.LivenessCheck)
 }
 
 // setupPublicRoutes configura as rotas públicas

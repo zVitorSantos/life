@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 // @title Life Game API
@@ -77,9 +78,12 @@ func validateEnvVars() error {
 }
 
 func main() {
-	// Carrega variáveis de ambiente do arquivo .env se existir
+	// Carrega variáveis de ambiente (opcional)
 	if err := godotenv.Load(); err != nil {
-		logger.Info("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
+		// Log apenas como warning, não como fatal
+		// Em ambientes de CI/produção, as variáveis podem já estar definidas
+		logger.InitLogger() // Inicializa logger antes de usar
+		log.Warn().Msg("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
 	}
 
 	// Valida se todas as variáveis necessárias estão presentes
