@@ -17,4 +17,6 @@ comment:
 ignore:
   - "tests/*"
   - "docs/*"
-  - "*.md" 
+  - "*.md"
+  - "**/*_test.go"
+  - "**/testdata/*"

@@ -1,4 +1,4 @@
-name: Testes
+name: Testes e Cobertura
 
 on:
   push:
@@ -42,14 +42,15 @@ jobs:
     - name: Start API
       env:
         DB_HOST: localhost
+        DB_PORT: 5432
         DB_USER: postgres
         DB_PASSWORD: postgres
         DB_NAME: life_test
-        DB_PORT: 5432
         JWT_SECRET: test_secret
         JWT_REFRESH_SECRET: test_refresh_secret
         PORT: 8080
         ENV: test
+        GIN_MODE: test
       run: |
         ./api &
         API_PID=$!
@@ -75,7 +76,7 @@ jobs:
       env:
         API_URL: http://localhost:8080/api
       run: |
-        go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
+        go test -v -race -coverprofile=coverage.txt -covermode=atomic ./tests/...
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

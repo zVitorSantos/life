@@ -1,12 +1,19 @@
 package tests
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
 	"life/models"
 )
 
+// TestUserModel testa o modelo de usuário
 func TestUserModel(t *testing.T) {
 	// Teste de criação de usuário
 	user := models.User{
@@ -41,4 +48,175 @@ func TestUserModel(t *testing.T) {
 	if user.UpdatedAt.IsZero() {
 		t.Error("UpdatedAt deve ser definido")
 	}
+}
+
+// TestUserFlow testa o fluxo completo de usuário
+func TestUserFlow(t *testing.T) {
+	setupTest(t)
+	// 1. Registro e Login
+	user := testRegister(t)
+	if user == nil {
+		t.Fatal("Falha no registro")
+	}
+
+	loginData := testLogin(t, user.Username, "senha123")
+	if loginData == nil {
+		t.Fatal("Falha no login")
+	}
+
+	// 2. Obter usuário
+	retrievedUser := testGetUser(t, loginData.AccessToken, strconv.FormatUint(uint64(user.ID), 10))
+	if retrievedUser == nil {
+		t.Fatal("Falha ao obter usuário")
+	}
+
+	// 3. Atualizar usuário
+	updatedUser := testUpdateUser(t, loginData.AccessToken, strconv.FormatUint(uint64(user.ID), 10))
+	if updatedUser == nil {
+		t.Fatal("Falha ao atualizar usuário")
+	}
+
+	// 4. Listar usuários
+	users := testListUsers(t, loginData.AccessToken)
+	if users == nil {
+		t.Fatal("Falha ao listar usuários")
+	}
+
+	// 5. Logout
+	if !testLogout(t, loginData.RefreshToken) {
+		t.Fatal("Falha no logout")
+	}
+}
+
+// testGetUser testa a obtenção de um usuário específico
+func testGetUser(t *testing.T, accessToken string, userID string) *User {
+	url := fmt.Sprintf("%s/users/%s", baseURL, userID)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Errorf("Erro ao criar requisição: %v", err)
+		return nil
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Errorf("Erro na requisição: %v", err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusOK, resp.StatusCode, string(body))
+		return nil
+	}
+
+	var user User
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&user); err != nil {
+		t.Errorf("Erro ao decodificar resposta: %v", err)
+		return nil
+	}
+
+	return &user
+}
+
+// testUpdateUser testa a atualização de um usuário
+func testUpdateUser(t *testing.T, accessToken string, userID string) *User {
+	url := fmt.Sprintf("%s/users/%s", baseURL, userID)
+
+	timestamp := time.Now().Format("20060102150405")
+	data := map[string]string{
+		"display_name": "Usuário Teste Atualizado",
+		"email":        fmt.Sprintf("test_updated_%s@example.com", timestamp),
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		t.Errorf("Erro ao criar JSON: %v", err)
+		return nil
+	}
+
+	// Log do corpo da requisição
+	t.Logf("Corpo da requisição: %s", string(jsonData))
+
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Errorf("Erro ao criar requisição: %v", err)
+		return nil
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Errorf("Erro na requisição: %v", err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusOK, resp.StatusCode, string(body))
+		return nil
+	}
+
+	var user User
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&user); err != nil {
+		t.Errorf("Erro ao decodificar resposta: %v", err)
+		return nil
+	}
+
+	return &user
+}
+
+// testListUsers testa a listagem de usuários
+func testListUsers(t *testing.T, accessToken string) []User {
+	url := fmt.Sprintf("%s/users", baseURL)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Errorf("Erro ao criar requisição: %v", err)
+		return nil
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Errorf("Erro na requisição: %v", err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusOK, resp.StatusCode, string(body))
+		return nil
+	}
+
+	var users []User
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&users); err != nil {
+		t.Errorf("Erro ao decodificar resposta: %v", err)
+		return nil
+	}
+
+	return users
 }

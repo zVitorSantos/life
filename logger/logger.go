@@ -33,6 +33,11 @@ func Error(message string) {
 	log.Error().Msg(message)
 }
 
+// Info registra uma mensagem informativa
+func Info(message string) {
+	log.Info().Msg(message)
+}
+
 func LogRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()

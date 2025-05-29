@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"life/config"
-	_ "life/docs" // Importa a documentação Swagger
+	_ "life/docs"
 	"life/logger"
 	"life/routes"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
@@ -49,6 +51,32 @@ import (
 // @tag.name api-keys
 // @tag.description Gerenciamento de chaves de API
 
+// requiredEnvVars lista todas as variáveis de ambiente necessárias
+var requiredEnvVars = []string{
+	"DB_HOST",
+	"DB_PORT",
+	"DB_USER",
+	"DB_PASSWORD",
+	"DB_NAME",
+	"JWT_SECRET",
+}
+
+func validateEnvVars() error {
+	var missing []string
+
+	for _, envVar := range requiredEnvVars {
+		if os.Getenv(envVar) == "" {
+			missing = append(missing, envVar)
+		}
+	}
+
+	if len(missing) > 0 {
+		return fmt.Errorf("variáveis de ambiente obrigatórias não encontradas: %s", strings.Join(missing, ", "))
+	}
+
+	return nil
+}
+
 func main() {
 	// Carrega variáveis de ambiente (opcional)
 	if err := godotenv.Load(); err != nil {
@@ -56,6 +84,11 @@ func main() {
 		// Em ambientes de CI/produção, as variáveis podem já estar definidas
 		logger.InitLogger() // Inicializa logger antes de usar
 		log.Warn().Msg("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
+	}
+
+	// Valida se todas as variáveis necessárias estão presentes
+	if err := validateEnvVars(); err != nil {
+		logger.Fatal("Erro ao validar variáveis de ambiente: " + err.Error())
 	}
 
 	// Inicializa o container

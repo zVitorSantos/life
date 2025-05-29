@@ -54,20 +54,20 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	setupHealthRoutes(r, healthHandler)
 
 	// Rotas públicas
-	public := r.Group("/api")
+	public := r.Group("/api/v1")
 	{
 		setupPublicRoutes(public, userHandler, authHandler)
 	}
 
 	// Rotas protegidas por JWT
-	protected := r.Group("/api")
+	protected := r.Group("/api/v1")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		setupProtectedRoutes(protected, userHandler, apiKeyHandler)
 	}
 
 	// Rotas protegidas por API Key
-	apiProtected := r.Group("/api")
+	apiProtected := r.Group("/api/v1")
 	apiProtected.Use(middleware.APIKeyAuth(db))
 	{
 		setupAPIProtectedRoutes(apiProtected)
@@ -84,8 +84,8 @@ func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler
 	// @Produce json
 	// @Success 200 {object} handlers.HealthResponse
 	// @Failure 503 {object} handlers.HealthResponse
-	// @Router /health [get]
-	router.GET("/health", healthHandler.HealthCheck)
+	// @Router /api/v1/health [get]
+	router.GET("/api/v1/health", healthHandler.HealthCheck)
 
 	// @Summary Readiness check
 	// @Description Verifica se a aplicação está pronta para receber tráfego
@@ -93,23 +93,23 @@ func setupHealthRoutes(router *gin.Engine, healthHandler *handlers.HealthHandler
 	// @Produce json
 	// @Success 200 {object} handlers.HealthResponse
 	// @Failure 503 {object} handlers.HealthResponse
-	// @Router /ready [get]
-	router.GET("/ready", healthHandler.ReadinessCheck)
+	// @Router /api/v1/ready [get]
+	router.GET("/api/v1/ready", healthHandler.ReadinessCheck)
 
 	// @Summary Liveness check
 	// @Description Verifica se a aplicação está viva
 	// @Tags health
 	// @Produce json
 	// @Success 200 {object} handlers.HealthResponse
-	// @Router /live [get]
-	router.GET("/live", healthHandler.LivenessCheck)
+	// @Router /api/v1/live [get]
+	router.GET("/api/v1/live", healthHandler.LivenessCheck)
 }
 
 // setupPublicRoutes configura as rotas públicas
 func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) {
 	// Middleware para rotas de autenticação
-	auth := router.Group("")
-	auth.Use(middleware.RequestValidation())
+	router.Use(middleware.MethodNotAllowed())
+	router.Use(middleware.RequestValidation())
 	{
 		// @Summary Registra um novo usuário
 		// @Description Cria uma nova conta de usuário
@@ -121,7 +121,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 409 {object} map[string]string
 		// @Router /register [post]
-		auth.POST("/register", userHandler.Register)
+		router.POST("/register", userHandler.Register)
 
 		// @Summary Realiza login
 		// @Description Autentica um usuário e retorna tokens
@@ -133,7 +133,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 401 {object} map[string]string
 		// @Router /login [post]
-		auth.POST("/login", authHandler.Login)
+		router.POST("/login", authHandler.Login)
 
 		// @Summary Atualiza access token
 		// @Description Atualiza o access token usando o refresh token
@@ -145,7 +145,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 401 {object} map[string]string
 		// @Router /refresh [post]
-		auth.POST("/refresh", authHandler.Refresh)
+		router.POST("/refresh", authHandler.Refresh)
 
 		// @Summary Realiza logout
 		// @Description Revoga um refresh token
@@ -157,7 +157,7 @@ func setupPublicRoutes(router *gin.RouterGroup, userHandler *handlers.UserHandle
 		// @Failure 400 {object} map[string]string
 		// @Failure 404 {object} map[string]string
 		// @Router /logout [post]
-		auth.POST("/logout", authHandler.Logout)
+		router.POST("/logout", authHandler.Logout)
 	}
 }
 
@@ -188,6 +188,11 @@ func setupProtectedRoutes(router *gin.RouterGroup, userHandler *handlers.UserHan
 	// @Failure 404 {object} map[string]string
 	// @Router /profile [put]
 	router.PUT("/profile", userHandler.UpdateProfile)
+
+	// Rotas de usuário
+	router.GET("/users", userHandler.ListUsers)
+	router.GET("/users/:id", userHandler.GetUser)
+	router.PUT("/users/:id", userHandler.UpdateUser)
 
 	// Rotas de API Key
 	apiKeys := router.Group("/api-keys")

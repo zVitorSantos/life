@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 // TestProfileFlow testa o fluxo completo de perfil
 func TestProfileFlow(t *testing.T) {
+	setupTest(t)
 	// 1. Registro e Login
 	user := testRegister(t)
 	if user == nil {
@@ -60,13 +62,18 @@ func testGetProfile(t *testing.T, accessToken string) *User {
 	}
 	defer resp.Body.Close()
 
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status code esperado %d, recebido %d", http.StatusOK, resp.StatusCode)
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusOK, resp.StatusCode, string(body))
 		return nil
 	}
 
 	var user User
-	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&user); err != nil {
 		t.Errorf("Erro ao decodificar resposta: %v", err)
 		return nil
 	}
@@ -90,6 +97,9 @@ func testUpdateProfile(t *testing.T, accessToken string) *User {
 		return nil
 	}
 
+	// Log do corpo da requisição
+	t.Logf("Corpo da requisição: %s", string(jsonData))
+
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		t.Errorf("Erro ao criar requisição: %v", err)
@@ -107,13 +117,18 @@ func testUpdateProfile(t *testing.T, accessToken string) *User {
 	}
 	defer resp.Body.Close()
 
+	// Log da resposta
+	body, _ := io.ReadAll(resp.Body)
+	t.Logf("Status code: %d", resp.StatusCode)
+	t.Logf("Resposta: %s", string(body))
+
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status code esperado %d, recebido %d", http.StatusOK, resp.StatusCode)
+		t.Errorf("Status code esperado %d, recebido %d. Resposta: %s", http.StatusOK, resp.StatusCode, string(body))
 		return nil
 	}
 
 	var user User
-	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&user); err != nil {
 		t.Errorf("Erro ao decodificar resposta: %v", err)
 		return nil
 	}

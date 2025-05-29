@@ -168,6 +168,12 @@ go test ./tests/... -v
 
 # Testes com cobertura detalhada
 go test ./tests/... -coverprofile=coverage.txt -covermode=atomic -coverpkg=./...
+
+# Para executar todos os testes
+go test -v ./...
+
+# Para visualizar o relatório de cobertura
+go tool cover -html=coverage.txt
 ```
 
 ### Cobertura de Código
