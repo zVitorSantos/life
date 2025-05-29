@@ -104,7 +104,7 @@ try {
     # Executa os testes
     Write-Host "Executando testes..." -ForegroundColor Blue
     $env:API_URL = "http://localhost:8080/api/v1"
-    go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
+    & go test -v -coverprofile=coverage.txt -covermode=atomic ./tests/...
 
     if ($LASTEXITCODE -eq 0) {
         # Gera relatorio de cobertura HTML
