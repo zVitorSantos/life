@@ -25,8 +25,16 @@ func InitDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Migra as tabelas
-	err = db.AutoMigrate(&models.User{}, &models.APIKey{}, &models.RefreshToken{})
+	// Migra as tabelas (ordem importa devido às foreign keys)
+	err = db.AutoMigrate(
+		&models.User{},
+		&models.APIKey{},
+		&models.RefreshToken{},
+		&models.GameProfile{},
+		&models.Wallet{},
+		&models.Transaction{},
+		&models.GameSession{},
+	)
 	if err != nil {
 		return nil, err
 	}
